@@ -4,7 +4,7 @@ function createBot() {
     const bot = mineflayer.createBot({
         host: 'lossahurysushijitos.aternos.me',
         port: 21146,
-        username: 'nicobot :D',
+        username: 'Bot_Nicolas',
         version: '1.21.1'
     });
 
