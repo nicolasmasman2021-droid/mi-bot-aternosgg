@@ -1,32 +1,21 @@
 const mineflayer = require('mineflayer');
 const http = require('http');
 
-// 1. ESCUDO GLOBAL ANTI-CRASH (Evita que el código se muera por errores desconocidos)
-process.on('unhandledRejection', (reason, promise) => {
-    console.log('⚠️ Rechazo no manejado en:', promise, 'razón:', reason);
-});
-process.on('uncaughtException', (err) => {
-    console.log('🚨 Excepción no capturada críticamente evitada:', err.message);
-});
+// ESCUDO GLOBAL TOTAL CONTRA CRASHES
+process.on('unhandledRejection', (reason, promise) => { console.log('⚠️ Rechazo evitado:', reason); });
+process.on('uncaughtException', (err) => { console.log('🚨 Crash evitado:', err.message); });
 
-// 2. PÁGINA WEB FALSA CON RESPUESTA RÁPIDA PARA RENDER
+// SERVIDOR HTTP PARA ENGAÑAR A RENDER
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.write("Bot Nicolas esta vivo y protegido contra errores.");
+    res.write("Bot Nicolas activo y blindado.");
     res.end();
 });
+server.listen(process.env.PORT || 3000);
 
-server.listen(process.env.PORT || 3000, () => {
-    console.log("🚀 Servidor HTTP de respaldo activo en puerto", process.env.PORT || 3000);
-});
-
-// 3. SISTEMA DEL BOT CON RECONEXIÓN INTELIGENTE
 let bot;
 
 function createBot() {
-    console.log('🔄 Intentando conectar a Bot_Nicolas...');
-    
-    // Si ya existía una instancia del bot vieja, la destruimos por completo antes de reintentar
     if (bot) {
         try { bot.quit(); } catch(e) {}
     }
@@ -36,31 +25,25 @@ function createBot() {
         port: 21146,
         username: 'Bot_Nicolas',
         version: '1.21.1',
-        hideErrors: true // Oculta spam innecesario en la consola de Render
+        hideErrors: true
     });
 
-    // Éxito al entrar
-    bot.on('login', () => {
-        console.log('✅ ¡Bot_Nicolas entró con éxito al servidor!');
+    // PARCHE DE FÍSICAS PARA ENTRAR A LA 1.26.2 sin trabarse
+    bot.on('spawn', () => {
+        if (bot.physics) {
+            bot.physics.enabled = false; 
+            console.log('✅ ¡Bot_Nicolas en el juego y sin físicas!');
+        }
     });
 
-    // Control si Aternos lo bota o apaga (Maneja el formato de texto de Minecraft)
-    bot.on('kick', (reason) => {
-        let kickMessage = typeof reason === 'object' ? JSON.stringify(reason) : reason;
-        console.log('❌ Bot expulsado del servidor por:', kickMessage);
-    });
-
-    // Captura fallas de internet, DNS caídas o rechazo de puerto de Aternos
-    bot.on('error', (err) => {
-        console.log('⚠️ Error de conexión de red detectado:', err.message);
-    });
-
-    // Escudo para cuando el servidor se reinicia o se cae de la nada
+    bot.on('login', () => { console.log('¡Conectado al servidor!'); });
+    bot.on('kick', (reason) => { console.log('Expulsado por:', JSON.stringify(reason)); });
+    bot.on('error', (err) => { console.log('Error de red:', err.message); });
+    
     bot.on('end', () => {
-        console.log('🛑 Conexión perdida con Aternos. Reintentando de forma segura en 20 segundos...');
-        setTimeout(createBot, 20000); // 20 segundos da tiempo a que el servidor respire si se reinició
+        console.log('Conexión perdida. Reintentando en 15 segundos...');
+        setTimeout(createBot, 15000);
     });
 }
 
-// Arrancar el bucle principal por primera vez
 createBot();
