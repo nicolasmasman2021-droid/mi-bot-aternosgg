@@ -1,11 +1,21 @@
 const mineflayer = require('mineflayer');
+const http = require('http');
+
+// --- PÁGINA WEB FALSA PARA ENGAÑAR A RENDER ---
+http.createServer((req, res) => {
+    res.write("Bot Nicolas esta vivo");
+    res.end();
+}).listen(process.env.PORT || 3000, () => {
+    console.log("Servidor web falso activado para Render.");
+});
+// ----------------------------------------------
 
 function createBot() {
     const bot = mineflayer.createBot({
         host: 'lossahurysushijitos.aternos.me',
         port: 21146,
         username: 'Bot_Nicolas',
-        version: '1.21.1' // <-- OBLIGATORIO: Forzar versión vieja para que los plugins traduzcan
+        version: '1.21.1'
     });
 
     bot.on('login', () => {
@@ -13,7 +23,6 @@ function createBot() {
     });
 
     bot.on('kick', (reason) => {
-        // Convierte el objeto de razón de expulsión a texto legible
         console.log('Bot expulsado por:', JSON.stringify(reason));
     });
 
